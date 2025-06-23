@@ -16,36 +16,83 @@ An MCP (Model Context Protocol) server for inspecting and searching Claude Code 
 
 ## Installation
 
-1. Install dependencies:
+### Install from npm (recommended)
+
+1. Install globally from npm:
 ```bash
-npm install
+npm install -g cc-inspect-mcp
 ```
 
-2. Build the TypeScript code:
+2. Add to Claude Code:
 ```bash
-npm run build
+claude mcp add -s user cc-inspect npx cc-inspect-mcp
 ```
 
-## Configuration
-
-Add the MCP server to Claude Code using the CLI:
-
-### Option 1: User-wide installation (recommended)
-```bash
-# From the cc-inspect-mcp directory after building:
-claude mcp add -s user cc-inspect node dist/index.js
-```
-
-### Option 2: Project-specific installation
-```bash
-# From your project directory:
-claude mcp add cc-inspect node /absolute/path/to/cc-inspect-mcp/dist/index.js
-```
-
-### Verify installation
+3. Verify installation:
 ```bash
 claude mcp list
 ```
+
+### Upgrade from local installation
+
+If you previously installed cc-inspect from a local directory, remove it first:
+
+```bash
+# Check current installation
+claude mcp list
+
+# Remove old local installation (adjust name if different)
+claude mcp remove cc-inspect
+
+# Install from npm
+npm install -g cc-inspect-mcp
+
+# Add the npm version
+claude mcp add -s user cc-inspect npx cc-inspect-mcp
+
+# Verify new installation
+claude mcp list
+```
+
+### Install from source
+
+If you want to install from source instead:
+
+1. Clone and build:
+```bash
+git clone https://github.com/TensorPoet/cc-inspect-mcp.git
+cd cc-inspect-mcp
+npm install
+npm run build
+```
+
+2. Add to Claude Code:
+```bash
+# From the cc-inspect-mcp directory:
+claude mcp add -s user cc-inspect node dist/index.js
+```
+
+## Testing the Installation
+
+After installing, test that cc-inspect is working:
+
+```bash
+# Test if MCP server is available
+claude -p "Use cc-inspect to list available tools"
+
+# Test searching projects
+claude -p "Use cc-inspect to search for my recent projects"
+
+# Test boolean search
+claude -p "Use cc-inspect to find messages containing 'error AND npm'"
+
+# Test with a direct tool call
+claude -p "Use cc-inspect searchProjects tool with limit 5"
+```
+
+If you get errors, check:
+1. The MCP server is listed: `claude mcp list`
+2. You have Claude Code conversation history in `~/.claude/projects`
 
 ## Usage Examples
 
