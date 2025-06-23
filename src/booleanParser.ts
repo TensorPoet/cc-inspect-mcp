@@ -127,12 +127,12 @@ export class BooleanQueryParser {
 
   private peekToken(token: string): boolean {
     this.skipWhitespace();
-    return this.input.substr(this.pos, token.length) === token;
+    return this.input.substring(this.pos, this.pos + token.length) === token;
   }
 
   private consumeToken(token: string): boolean {
     this.skipWhitespace();
-    if (this.input.substr(this.pos, token.length) === token) {
+    if (this.input.substring(this.pos, this.pos + token.length) === token) {
       this.pos += token.length;
       return true;
     }
@@ -141,11 +141,11 @@ export class BooleanQueryParser {
 
   private peekKeyword(keyword: string): boolean {
     this.skipWhitespace();
-    const ahead = this.input.substr(this.pos, keyword.length + 1);
+    const ahead = this.input.substring(this.pos, this.pos + keyword.length + 1);
     return (
       ahead === keyword + ' ' || 
       ahead === keyword + '(' || 
-      this.input.substr(this.pos) === keyword
+      this.input.substring(this.pos) === keyword
     );
   }
 
