@@ -1,6 +1,5 @@
 # CC Inspect MCP
 
-[![CI](https://github.com/TensorPoet/cc-inspect-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/TensorPoet/cc-inspect-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/node/v/cc-inspect-mcp.svg)](https://nodejs.org)
 
