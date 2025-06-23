@@ -1,0 +1,54 @@
+{
+  "name": "cc-inspect-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for inspecting and searching Claude Code conversation history with boolean search support",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "cc-inspect": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "npm run build && node --test test/*.test.js",
+    "test:watch": "node --test --watch test/*.test.js",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "claude-code",
+    "search",
+    "boolean-search",
+    "model-context-protocol",
+    "conversation-history",
+    "ai-tools"
+  ],
+  "author": "CC Inspect Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TensorPoet/cc-inspect-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TensorPoet/cc-inspect-mcp/issues"
+  },
+  "homepage": "https://github.com/TensorPoet/cc-inspect-mcp#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

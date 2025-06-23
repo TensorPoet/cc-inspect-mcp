@@ -1,0 +1,30 @@
+# Source files
+src/
+test/
+*.ts
+!dist/**/*.d.ts
+
+# Config files
+tsconfig.json
+.gitignore
+.github/
+
+# Development files
+*.test.js
+manual-test.js
+verify-mcp.js
+test-*.sh
+PRODUCTION_CHECKLIST.md
+SUMMARY.md
+USAGE.md
+VERIFIED.md
+
+# Logs and temp files
+*.log
+.DS_Store
+node_modules/
+npm-debug.log*
+
+# Editor files
+.vscode/
+.idea/
