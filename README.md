@@ -60,11 +60,6 @@ claude -p "Use cc-inspect to find what projects I worked on yesterday"
 # Or in an interactive session
 claude
 > Use the cc-inspect MCP to search for messages about 'pip install error'
-
-# Boolean search examples
-> Find messages about errors with either pip or npm: 'error AND (pip OR npm)'
-> Find install instructions but not npm: 'install NOT npm'
-> Search for exact phrases: '"claude code" AND "mcp server"'
 ```
 
 ### Direct MCP Tool Calls
@@ -173,14 +168,6 @@ Run tests:
 npm test
 ```
 
-## Security Considerations
-
-- The server only accesses files within the Claude sessions directory
-- Search queries are sanitized to prevent injection attacks
-- No data is sent outside your local machine
-- Sensitive conversation content is not logged by default
-- Configure logging behavior via environment variables or config file
-
 ## Configuration
 
 CC Inspect looks for configuration files in these locations (in order):
@@ -239,10 +226,6 @@ Each message includes:
 - Large conversation histories may take time to load initially
 - Limit search results with smaller `limit` parameter
 - Consider using `excludedProjects` or `allowedProjects` in config to reduce data loaded
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
