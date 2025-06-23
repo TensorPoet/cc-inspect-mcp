@@ -1,6 +1,6 @@
 {
   "name": "cc-inspect-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for inspecting and searching Claude Code conversation history with boolean search support",
   "main": "dist/index.js",
   "type": "module",
