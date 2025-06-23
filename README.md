@@ -184,7 +184,12 @@ npm test
 
 ## Configuration
 
-Create a `cc-inspect.config.json` file to customize behavior:
+CC Inspect looks for configuration files in these locations (in order):
+1. `./cc-inspect.config.json` (current directory)
+2. `~/.claude/cc-inspect-config.json`
+3. `~/.config/cc-inspect/config.json`
+
+Create a configuration file to customize behavior:
 
 ```json
 {
@@ -193,14 +198,14 @@ Create a `cc-inspect.config.json` file to customize behavior:
   "maxLimit": 1000,
   "enableLogging": true,
   "logSensitiveContent": false,
-  "excludedProjects": ["private-project"]
+  "excludedProjects": ["private-project"],
+  "allowedProjects": ["project1", "project2"]
 }
 ```
 
 Or use environment variables:
 - `CLAUDE_SESSIONS_DIR` - Custom sessions directory
 - `CLAUDE_SEARCH_LIMIT` - Default result limit
-- `CLAUDE_SEARCH_CACHE` - Enable caching (true/false)
 - `CLAUDE_SEARCH_LOG_SENSITIVE` - Log conversation content (true/false)
 
 ## Message Structure
@@ -233,8 +238,8 @@ Each message includes:
 
 ### Performance issues
 - Large conversation histories may take time to load initially
-- Consider implementing caching (set `CLAUDE_SEARCH_CACHE=true`)
 - Limit search results with smaller `limit` parameter
+- Consider using `excludedProjects` or `allowedProjects` in config to reduce data loaded
 
 ## Contributing
 

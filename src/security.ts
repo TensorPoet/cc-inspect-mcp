@@ -1,4 +1,4 @@
-import { resolve, isAbsolute, relative } from 'path';
+import { resolve, isAbsolute, relative, join } from 'path';
 import { homedir } from 'os';
 
 export class SecurityValidator {
@@ -56,6 +56,3 @@ export class SecurityValidator {
       + (content.length > maxLength ? '...' : '');
   }
 }
-
-// Re-export join for import fix
-import { join } from 'path';

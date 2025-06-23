@@ -9,29 +9,48 @@ export class SessionLoader {
   private messages: Message[] = [];
   private projects: Map<string, Project> = new Map();
   private sessions: Map<string, Message[]> = new Map();
+  private excludedProjects: Set<string>;
+  private allowedProjects: Set<string> | null;
+  private enableLogging: boolean;
 
-  constructor(claudeDir?: string) {
+  constructor(
+    claudeDir?: string, 
+    excludedProjects?: string[], 
+    allowedProjects?: string[],
+    enableLogging: boolean = true
+  ) {
     this.claudeDir = claudeDir || join(homedir(), '.claude', 'projects');
+    this.excludedProjects = new Set(excludedProjects || []);
+    this.allowedProjects = allowedProjects ? new Set(allowedProjects) : null;
+    this.enableLogging = enableLogging;
   }
 
   async loadSessions(): Promise<void> {
-    console.error('Loading Claude Code sessions...');
+    if (this.enableLogging) {
+      console.error('Loading Claude Code sessions...');
+    }
     
     // Find all JSONL files
     const pattern = join(this.claudeDir, '**/*.jsonl');
     const files = await glob(pattern);
     
-    console.error(`Found ${files.length} session files`);
+    if (this.enableLogging) {
+      console.error(`Found ${files.length} session files`);
+    }
 
     for (const file of files) {
       try {
         await this.loadSessionFile(file);
       } catch (error) {
-        console.error(`Error loading ${file}:`, error);
+        if (this.enableLogging) {
+          console.error(`Error loading ${file}:`, error);
+        }
       }
     }
 
-    console.error(`Loaded ${this.messages.length} messages from ${this.projects.size} projects`);
+    if (this.enableLogging) {
+      console.error(`Loaded ${this.messages.length} messages from ${this.projects.size} projects`);
+    }
   }
 
   private async loadSessionFile(filePath: string): Promise<void> {
@@ -51,7 +70,9 @@ export class SessionLoader {
         this.messages.push(message);
         sessionMessages.push(message);
       } catch (error) {
-        console.error(`Error parsing message in ${filePath} line ${i + 1}:`, error);
+        if (this.enableLogging) {
+          console.error(`Error parsing message in ${filePath} line ${i + 1}:`, error);
+        }
       }
     }
     
@@ -118,6 +139,16 @@ export class SessionLoader {
   private updateProjectInfo(projectFolder: string, messages: Message[]): void {
     const projectName = this.decodeProjectName(projectFolder);
     const projectPath = messages[0]?.projectPath || '';
+    
+    // Skip excluded projects
+    if (this.excludedProjects.has(projectName)) {
+      return;
+    }
+    
+    // Skip if not in allowed list (when specified)
+    if (this.allowedProjects && !this.allowedProjects.has(projectName)) {
+      return;
+    }
     
     const existing = this.projects.get(projectName) || {
       name: projectName,

@@ -28,5 +28,6 @@ __pycache__/
 *.log
 
 # Testing
-test-*.js
-*.test.js
+/test-*.js
+/manual-test.js
+/verify-mcp.js

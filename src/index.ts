@@ -9,13 +9,35 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { SessionLoader } from './sessionLoader.js';
 import { SearchEngine } from './search.js';
+import { ConfigLoader } from './config.js';
+import { SecurityValidator } from './security.js';
+import type { Message } from './types.js';
 
-// Initialize components
-const sessionLoader = new SessionLoader(process.env.CLAUDE_SESSIONS_DIR);
+// Load configuration
+const configLoader = new ConfigLoader();
+const config = configLoader.get();
+
+// Validate configuration
+const configErrors = configLoader.validate();
+if (configErrors.length > 0) {
+  console.error('Configuration errors:', configErrors);
+  process.exit(1);
+}
+
+// Initialize components with config
+const sessionLoader = new SessionLoader(
+  config.sessionsDir,
+  config.excludedProjects,
+  config.allowedProjects,
+  config.enableLogging
+);
 const searchEngine = new SearchEngine();
+const security = new SecurityValidator(config.sessionsDir);
 
 // Load sessions on startup
-console.error('Initializing CC Inspect MCP Server...');
+if (config.enableLogging) {
+  console.error('Initializing CC Inspect MCP Server...');
+}
 await sessionLoader.loadSessions();
 
 // Create MCP server
@@ -155,7 +177,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case 'searchProjects': {
         const projects = sessionLoader.getProjects();
-        const result = searchEngine.searchProjects(projects, args || {});
+        const params: any = args || {};
+        
+        // Apply config limits
+        if (params.limit === undefined) {
+          params.limit = config.defaultLimit;
+        } else if (params.limit > config.maxLimit) {
+          params.limit = config.maxLimit;
+        }
+        
+        // Sanitize query if provided
+        if (params.query && typeof params.query === 'string') {
+          params.query = security.sanitizeQuery(params.query);
+        }
+        
+        const result = searchEngine.searchProjects(projects, params);
         return {
           content: [
             {
@@ -168,16 +204,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'searchMessages': {
         const messages = sessionLoader.getMessages();
-        const sessions = new Map<string, any>();
+        const sessions = new Map<string, Message[]>();
+        const params: any = args || {};
         
-        // Build sessions map more efficiently
+        // Apply config limits
+        if (params.limit === undefined) {
+          params.limit = config.defaultLimit;
+        } else if (params.limit > config.maxLimit) {
+          params.limit = config.maxLimit;
+        }
+        
+        // Validate and sanitize inputs
+        if (params.query && typeof params.query === 'string') {
+          params.query = security.sanitizeQuery(params.query);
+        }
+        
+        if (params.sessionId && typeof params.sessionId === 'string' && !security.validateSessionId(params.sessionId)) {
+          throw new Error('Invalid session ID format');
+        }
+        
+        // Build sessions map
         for (const msg of messages) {
           const existing = sessions.get(msg.sessionId) || [];
           existing.push(msg);
           sessions.set(msg.sessionId, existing);
         }
 
-        const result = searchEngine.searchMessages(messages, sessions, args || {});
+        const result = searchEngine.searchMessages(messages, sessions, params);
         return {
           content: [
             {
@@ -190,7 +243,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'getActivitySummary': {
         const messages = sessionLoader.getMessages();
-        const result = searchEngine.getActivitySummary(messages, args as any);
+        
+        // Validate required parameters
+        if (!args || !args.startTime || !args.endTime || !args.groupBy) {
+          throw new Error('Missing required parameters: startTime, endTime, and groupBy are required');
+        }
+        
+        // Type-safe parameter passing
+        const params = {
+          startTime: String(args.startTime),
+          endTime: String(args.endTime),
+          groupBy: args.groupBy as 'project' | 'session' | 'hour'
+        };
+        
+        const result = searchEngine.getActivitySummary(messages, params);
         return {
           content: [
             {
@@ -205,7 +271,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    console.error(`Error in tool ${name}:`, error);
+    if (config.enableLogging) {
+      console.error(`Error in tool ${name}:`, error);
+    }
     return {
       content: [
         {
@@ -220,4 +288,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // Start server
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error('CC Inspect MCP Server running');
+if (config.enableLogging) {
+  console.error('CC Inspect MCP Server running');
+}

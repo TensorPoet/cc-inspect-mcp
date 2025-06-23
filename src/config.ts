@@ -11,11 +11,6 @@ export interface Config {
   maxLimit: number;
   maxQueryLength: number;
   
-  // Performance
-  enableCache: boolean;
-  cacheDir?: string;
-  maxMessagesInMemory?: number;
-  
   // Security
   enableLogging: boolean;
   logSensitiveContent: boolean;
@@ -31,7 +26,6 @@ const DEFAULT_CONFIG: Config = {
   defaultLimit: 50,
   maxLimit: 1000,
   maxQueryLength: 1000,
-  enableCache: false,
   enableLogging: true,
   logSensitiveContent: false,
   enableBooleanSearch: true
@@ -75,9 +69,6 @@ export class ConfigLoader {
     }
     if (process.env.CLAUDE_SEARCH_LIMIT) {
       config.defaultLimit = parseInt(process.env.CLAUDE_SEARCH_LIMIT, 10);
-    }
-    if (process.env.CLAUDE_SEARCH_CACHE === 'true') {
-      config.enableCache = true;
     }
     if (process.env.CLAUDE_SEARCH_LOG_SENSITIVE === 'true') {
       config.logSensitiveContent = true;
